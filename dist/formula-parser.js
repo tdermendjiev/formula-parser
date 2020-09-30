@@ -11582,8 +11582,8 @@ var Parser = function (_Emitter) {
         return _this._callVariable(variable);
       },
       evaluateByOperator: _evaluateByOperator2['default'],
-      callFunction: function callFunction(name, params) {
-        return _this._callFunction(name, params);
+      callFunction: async function callFunction(name, params) {
+        return await _this._callFunction(name, params);
       },
       cellValue: function cellValue(value) {
         return _this._callCellValue(value);
@@ -11622,7 +11622,7 @@ var Parser = function (_Emitter) {
         result = '';
       } else {
         console.log(expression);
-        result = this.parser.parse(expression);
+        result = await this.parser.parse(expression);
         if (result.then) {
           //check if result is promise
           console.log("Parsing the async expression...");
@@ -14632,7 +14632,7 @@ yy: {},
 symbols_: {"error":2,"expressions":3,"expression":4,"EOF":5,"variableSequence":6,"number":7,"STRING":8,"&":9,"=":10,"+":11,"(":12,")":13,"<":14,">":15,"NOT":16,"-":17,"*":18,"/":19,"^":20,"FUNCTION":21,"expseq":22,"cell":23,"dbexp":24,"ABSOLUTE_CELL":25,"RELATIVE_CELL":26,"MIXED_CELL":27,":":28,"DATABASE_NAME":29,"NUMBER":30,"ARRAY":31,";":32,",":33,"VARIABLE":34,"!":35,"DECIMAL":36,"%":37,"ERROR":38,"$accept":0,"$end":1},
 terminals_: {5:"EOF",8:"STRING",9:"&",10:"=",11:"+",12:"(",13:")",14:"<",15:">",16:"NOT",17:"-",18:"*",19:"/",20:"^",21:"FUNCTION",25:"ABSOLUTE_CELL",26:"RELATIVE_CELL",27:"MIXED_CELL",28:":",29:"DATABASE_NAME",30:"NUMBER",31:"ARRAY",32:";",33:",",34:"VARIABLE",35:"!",36:"DECIMAL",37:"%",38:"ERROR"},
 productions_: [0,[3,2],[4,1],[4,1],[4,1],[4,3],[4,3],[4,3],[4,3],[4,4],[4,4],[4,4],[4,3],[4,3],[4,3],[4,3],[4,3],[4,3],[4,3],[4,2],[4,2],[4,3],[4,4],[4,1],[4,1],[4,1],[4,2],[23,1],[23,1],[23,1],[23,3],[23,3],[23,3],[23,3],[23,3],[23,3],[23,3],[23,3],[23,3],[24,7],[24,5],[22,1],[22,1],[22,3],[22,3],[6,1],[6,3],[6,3],[6,5],[6,3],[7,1],[7,3],[7,2],[2,1]],
-performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
+performAction: async function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
 var $0 = $$.length - 1;
@@ -14756,7 +14756,7 @@ case 21:
 break;
 case 22:
 
-      this.$ = yy.callFunction($$[$0-3], $$[$0-1]);
+      this.$ = await yy.callFunction($$[$0-3], $$[$0-1]);
 
 break;
 case 27: case 28: case 29:
@@ -14849,7 +14849,7 @@ parseError: function parseError (str, hash) {
         throw error;
     }
 },
-parse: function parse (input) {
+parse: async function parse (input) {
     var self = this,
         stack = [0],
         tstack = [], // token stack
@@ -15057,7 +15057,7 @@ _handle_error:
                 if (ranges) {
                   yyval._$.range = [lstack[lstack.length-(len||1)].range[0], lstack[lstack.length-1].range[1]];
                 }
-                r = this.performAction.apply(yyval, [yytext, yyleng, yylineno, sharedState.yy, action[1], vstack, lstack].concat(args));
+                r = await this.performAction.apply(yyval, [yytext, yyleng, yylineno, sharedState.yy, action[1], vstack, lstack].concat(args));
 
                 if (typeof r !== 'undefined') {
                     return r;
@@ -15511,7 +15511,7 @@ return new Parser;
 if (true) {
     exports.parser = grammarParser;
     exports.Parser = grammarParser.Parser;
-    exports.parse = function () { return grammarParser.parse.apply(grammarParser, arguments); };
+    exports.parse = async function () { return await grammarParser.parse.apply(grammarParser, arguments); };
 }
 
 /***/ }),

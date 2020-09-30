@@ -78,7 +78,7 @@ yy: {},
 symbols_: {"error":2,"expressions":3,"expression":4,"EOF":5,"variableSequence":6,"number":7,"STRING":8,"&":9,"=":10,"+":11,"(":12,")":13,"<":14,">":15,"NOT":16,"-":17,"*":18,"/":19,"^":20,"FUNCTION":21,"expseq":22,"cell":23,"dbexp":24,"ABSOLUTE_CELL":25,"RELATIVE_CELL":26,"MIXED_CELL":27,":":28,"DATABASE_NAME":29,"NUMBER":30,"ARRAY":31,";":32,",":33,"VARIABLE":34,"!":35,"DECIMAL":36,"%":37,"ERROR":38,"$accept":0,"$end":1},
 terminals_: {5:"EOF",8:"STRING",9:"&",10:"=",11:"+",12:"(",13:")",14:"<",15:">",16:"NOT",17:"-",18:"*",19:"/",20:"^",21:"FUNCTION",25:"ABSOLUTE_CELL",26:"RELATIVE_CELL",27:"MIXED_CELL",28:":",29:"DATABASE_NAME",30:"NUMBER",31:"ARRAY",32:";",33:",",34:"VARIABLE",35:"!",36:"DECIMAL",37:"%",38:"ERROR"},
 productions_: [0,[3,2],[4,1],[4,1],[4,1],[4,3],[4,3],[4,3],[4,3],[4,4],[4,4],[4,4],[4,3],[4,3],[4,3],[4,3],[4,3],[4,3],[4,3],[4,2],[4,2],[4,3],[4,4],[4,1],[4,1],[4,1],[4,2],[23,1],[23,1],[23,1],[23,3],[23,3],[23,3],[23,3],[23,3],[23,3],[23,3],[23,3],[23,3],[24,7],[24,5],[22,1],[22,1],[22,3],[22,3],[6,1],[6,3],[6,3],[6,5],[6,3],[7,1],[7,3],[7,2],[2,1]],
-performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
+performAction: async function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
 var $0 = $$.length - 1;
@@ -295,7 +295,7 @@ parseError: function parseError (str, hash) {
         throw error;
     }
 },
-parse: function parse (input) {
+parse: async function parse (input) {
     var self = this,
         stack = [0],
         tstack = [], // token stack
@@ -503,7 +503,7 @@ _handle_error:
                 if (ranges) {
                   yyval._$.range = [lstack[lstack.length-(len||1)].range[0], lstack[lstack.length-1].range[1]];
                 }
-                r = this.performAction.apply(yyval, [yytext, yyleng, yylineno, sharedState.yy, action[1], vstack, lstack].concat(args));
+                r = await this.performAction.apply(yyval, [yytext, yyleng, yylineno, sharedState.yy, action[1], vstack, lstack].concat(args));
 
                 if (typeof r !== 'undefined') {
                     return r;
@@ -676,7 +676,7 @@ showPosition:function () {
     },
 
 // test the lexed token: return FALSE when not a match, otherwise return token
-test_match:function(match, indexed_rule) {
+test_match:async function(match, indexed_rule) {
         var token,
             lines,
             backup;
@@ -731,7 +731,7 @@ test_match:function(match, indexed_rule) {
         this._backtrack = false;
         this._input = this._input.slice(match[0].length);
         this.matched += match[0];
-        token = this.performAction.call(this, this.yy, this, indexed_rule, this.conditionStack[this.conditionStack.length - 1]);
+        token = await this.performAction.call(this, this.yy, this, indexed_rule, this.conditionStack[this.conditionStack.length - 1]);
         if (this.done && this._input) {
             this.done = false;
         }
@@ -859,7 +859,7 @@ stateStackSize:function stateStackSize() {
         return this.conditionStack.length;
     },
 options: {},
-performAction: function anonymous(yy,yy_,$avoiding_name_collisions,YY_START) {
+performAction: async function anonymous(yy,yy_,$avoiding_name_collisions,YY_START) {
 var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
 case 0:/* skip whitespace */
@@ -957,5 +957,5 @@ return new Parser;
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
     exports.parser = grammarParser;
     exports.Parser = grammarParser.Parser;
-    exports.parse = function () { return grammarParser.parse.apply(grammarParser, arguments); };
+    exports.parse = async function () { return await grammarParser.parse.apply(grammarParser, arguments); };
 }
