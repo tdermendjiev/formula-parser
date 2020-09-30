@@ -23,6 +23,8 @@ class Parser extends Emitter {
       callFunction: (name, params) => this._callFunction(name, params),
       cellValue: (value) => this._callCellValue(value),
       rangeValue: (start, end) => this._callRangeValue(start, end),
+      dbValue: (database, table, column, row) => this._callDbValue(database, table, column, row),
+      dbArray: (database, table, column) => this._callDbArray(database, table, column),
     };
     this.variables = Object.create(null);
     this.functions = Object.create(null);
@@ -39,7 +41,7 @@ class Parser extends Emitter {
    * @param {String} expression to parse.
    * @return {*} Returns an object with tow properties `error` and `result`.
    */
-  parse(expression) {
+ async parse(expression) {
     let result = null;
     let error = null;
 
@@ -47,7 +49,13 @@ class Parser extends Emitter {
       if (expression === '') {
         result = '';
       } else {
+        console.log(expression);
         result = this.parser.parse(expression);
+        if (result.then) { //check if result is promise
+          console.log("Parsing the async expression...");
+          result = await result;
+          console.log("Async expression value:", result);
+        }
       }
     } catch (ex) {
       const message = errorParser(ex.message);
@@ -147,12 +155,23 @@ class Parser extends Emitter {
    * @returns {*}
    * @private
    */
-  _callFunction(name, params = []) {
+  async _callFunction(name, params = []) {
     const fn = this.getFunction(name);
     let value;
 
     if (fn) {
       value = fn(params);
+    }
+    console.log("CALLING FUNCTION ",name)
+    for (let i = 0; i < params.length; i++) {
+      let param = params[i];
+      console.log(param);
+      if (param.then) {
+        param = await param;
+        console.log("resolved param - ", param);
+        params[i] = param;
+      }
+
     }
 
     this.emit('callFunction', name, params, (newValue) => {
@@ -182,6 +201,24 @@ class Parser extends Emitter {
     });
 
     return value;
+  }
+
+  _callDbValue(database, table, column, row) {
+    console.log("CALLING DB VALUE")
+    let vv = 0
+    this.emit('callDbValue', {database, table, column, row}, (_value) => {
+      vv = _value;
+    });
+    return vv;
+  }
+
+  _callDbArray(database, table, column) {
+    console.log("CALLING DB ARRAY")
+    let vv = []
+    this.emit('callDbArray', {database, table, column}, (_value) => {
+      vv = _value;
+    });
+    return vv
   }
 
   /**

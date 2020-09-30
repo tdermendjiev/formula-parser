@@ -14,6 +14,7 @@
 [A-Za-z\.]+(?=[(])                                                                              {return 'FUNCTION';}
 [A-Za-z]{1,}[A-Za-z_0-9]+                                                                       {return 'VARIABLE';}
 [A-Za-z_]+                                                                                      {return 'VARIABLE';}
+'@'[A-Za-z_]+                                                                                 {return 'DATABASE_NAME';}
 [0-9]+                                                                                          {return 'NUMBER';}
 '['(.*)?']'                                                                                     {return 'ARRAY';}
 "&"                                                                                             {return '&';}
@@ -139,6 +140,7 @@ expression
       $$ = yy.callFunction($1, $3);
     }
   | cell
+  | dbexp
   | error
   | error error
 ;
@@ -182,6 +184,15 @@ cell
     }
 ;
 
+dbexp
+   : DATABASE_NAME ':' DATABASE_NAME ':' DATABASE_NAME ':' NUMBER {
+      $$ = yy.dbValue($1, $3, $5, $7);
+    }
+  | DATABASE_NAME ':' DATABASE_NAME ':' DATABASE_NAME  {
+      $$ = yy.dbArray($1, $3, $5);
+    }
+;
+
 expseq
   : expression {
       $$ = [$1];
@@ -202,6 +213,15 @@ expseq
 variableSequence
   : VARIABLE {
       $$ = [$1];
+    }
+  | VARIABLE '!' VARIABLE {
+      $$ = yy.allFromTable($1, $3);
+    }
+  | VARIABLE ':' VARIABLE {
+      $$ = yy.allFromTableColumn($1, $3);
+    }
+  | VARIABLE '!' VARIABLE ':' VARIABLE {
+      $$ = yy.allFromTableColumn($3, $5, $1);
     }
   | variableSequence DECIMAL VARIABLE {
       $$ = (Array.isArray($1) ? $1 : [$1]);
